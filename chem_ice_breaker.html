@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chemistry in Everyday Life - Interactive Ice Breaker</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        h1 {
+            text-align: center;
+            color: #4a5568;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+            font-weight: 700;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #718096;
+            margin-bottom: 40px;
+            font-size: 1.2em;
+        }
+
+        .instructions {
+            background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .chemistry-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .chemistry-item {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 3px solid transparent;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .chemistry-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.5s;
+        }
+
+        .chemistry-item:hover::before {
+            left: 100%;
+        }
+
+        .chemistry-item:hover {
+            transform: translateY(-10px) scale(1.02);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+            border-color: #667eea;
+        }
+
+        .chemistry-item.revealed {
+            border-color: #48bb78;
+            background: linear-gradient(135deg, #68d391 0%, #38b2ac 100%);
+            color: white;
+        }
+
+        .chemistry-item.revealed .bullet {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+
+        .bullet {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            color: white;
+            font-weight: bold;
+            font-size: 18px;
+            margin-right: 15px;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .item-title {
+            font-size: 1.3em;
+            font-weight: 600;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+
+        .item-content {
+            line-height: 1.6;
+            font-size: 1em;
+        }
+
+        .hidden-fact {
+            margin-top: 15px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            font-style: italic;
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .chemistry-item.revealed .hidden-fact {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .score-counter {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 25px;
+            font-weight: bold;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            z-index: 100;
+        }
+
+        .completion-message {
+            text-align: center;
+            margin-top: 30px;
+            padding: 20px;
+            background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+            border-radius: 15px;
+            display: none;
+            animation: bounceIn 0.8s ease;
+        }
+
+        @keyframes bounceIn {
+            0% { transform: scale(0.3); opacity: 0; }
+            50% { transform: scale(1.05); }
+            70% { transform: scale(0.9); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .reset-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 25px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 15px;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .reset-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+            
+            h1 {
+                font-size: 2em;
+            }
+            
+            .chemistry-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .score-counter {
+                position: relative;
+                top: 0;
+                right: 0;
+                margin-bottom: 20px;
+                display: inline-block;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="score-counter">
+        <span id="score">Discoveries: 0/8</span>
+    </div>
+
+    <div class="container">
+        <h1>🧪 Chemistry All Around Us! 🧪</h1>
+        <p class="subtitle">An Interactive Ice Breaker Game</p>
+        
+        <div class="instructions">
+            <strong>Welcome, future chemists!</strong> Click on each item below to discover the amazing chemistry happening in your everyday life. See how many cool chemical facts you can uncover!
+        </div>
+
+        <div class="chemistry-grid">
+            <div class="chemistry-item" data-item="1">
+                <div class="item-title">
+                    <span class="bullet">🍞</span>
+                    Baking Bread
+                </div>
+                <div class="item-content">
+                    The delicious smell and fluffy texture of fresh bread...
+                </div>
+                <div class="hidden-fact">
+                    <strong>Chemistry Secret:</strong> When you bake bread, the Maillard reaction occurs between amino acids and sugars at high temperatures, creating hundreds of flavor compounds! The yeast also produces CO₂ through fermentation, making the bread rise. It's like a mini chemistry lab in your oven!
+                </div>
+            </div>
+
+            <div class="chemistry-item" data-item="2">
+                <div class="item-title">
+                    <span class="bullet">🧼</span>
+                    Washing Dishes
+                </div>
+                <div class="item-content">
+                    How does soap actually clean your dirty dishes?
+                </div>
+                <div class="hidden-fact">
+                    <strong>Chemistry Secret:</strong> Soap molecules are amphiphilic - they have both water-loving (hydrophilic) and oil-loving (lipophilic) ends! This lets them grab onto grease with one end and water with the other, breaking surface tension and lifting dirt away. You're literally using molecular architecture to clean!
+                </div>
+            </div>
+
+            <div class="chemistry-item" data-item="3">
+                <div class="item-title">
+                    <span class="bullet">🔥</span>
+                    Striking a Match
+                </div>
+                <div class="item-content">
+                    That instant flame when you strike a match...
+                </div>
+                <div class="hidden-fact">
+                    <strong>Chemistry Secret:</strong> The match head contains potassium chlorate (oxidizer) and sulfur (fuel). When you strike it, friction generates heat that triggers a rapid oxidation reaction: 2KClO₃ → 2KCl + 3O₂. The oxygen feeds the flame while phosphorus compounds help sustain the reaction!
+                </div>
+            </div>
+
+            <div class="chemistry-item" data-item="4">
+                <div class="item-title">
+                    <span class="bullet">🍎</span>
+                    Apple Turning Brown
+                </div>
+                <div class="item-content">
+                    Why do cut apples turn brown so quickly?
+                </div>
+                <div class="hidden-fact">
+                    <strong>Chemistry Secret:</strong> This is enzymatic browning! When you cut an apple, you break cell walls and expose phenolic compounds to the enzyme polyphenol oxidase. In the presence of oxygen, this creates quinones that polymerize into brown melanoidin pigments. Lemon juice prevents this by providing antioxidant ascorbic acid!
+                </div>
+            </div>
+
+            <div class="chemistry-item" data-item="5">
+                <div class="item-title">
+                    <span class="bullet">💊</span>
+                    Antacid Relief
+                </div>
+                <div class="item-content">
+                    How do antacids neutralize stomach acid?
+                </div>
+                <div class="hidden-fact">
+                    <strong>Chemistry Secret:</strong> Antacids contain basic compounds like calcium carbonate (CaCO₃) or magnesium hydroxide (Mg(OH)₂). These react with stomach acid (HCl) in a neutralization reaction: CaCO₃ + 2HCl → CaCl₂ + H₂O + CO₂. The fizzing you feel is CO₂ gas being produced!
+                </div>
+            </div>
+
+            <div class="chemistry-item" data-item="6">
+                <div class="item-title">
+                    <span class="bullet">🌱</span>
+                    Plants Growing
+                </div>
+                <div class="item-content">
+                    The green magic of photosynthesis...
+                </div>
+                <div class="hidden-fact">
+                    <strong>Chemistry Secret:</strong> Photosynthesis is nature's most important reaction: 6CO₂ + 6H₂O + light energy → C₆H₁₂O₆ + 6O₂. Plants use chlorophyll to capture light photons and convert carbon dioxide and water into glucose and oxygen. Every breath you take depends on this chemical process!
+                </div>
+            </div>
+
+            <div class="chemistry-item" data-item="7">
+                <div class="item-title">
+                    <span class="bullet">🧊</span>
+                    Ice Melting
+                </div>
+                <div class="item-content">
+                    The simple act of ice becoming water...
+                </div>
+                <div class="hidden-fact">
+                    <strong>Chemistry Secret:</strong> When ice melts, hydrogen bonds between water molecules break and reform rapidly. Ice has a unique crystal structure with each water molecule forming 4 hydrogen bonds, making it less dense than liquid water. That's why ice floats - and why life on Earth survived ice ages!
+                </div>
+            </div>
+
+            <div class="chemistry-item" data-item="8">
+                <div class="item-title">
+                    <span class="bullet">🔋</span>
+                    Phone Battery
+                </div>
+                <div class="item-content">
+                    How does your phone battery actually work?
+                </div>
+                <div class="hidden-fact">
+                    <strong>Chemistry Secret:</strong> Your lithium-ion battery works through redox reactions! At the anode, lithium atoms lose electrons (Li → Li⁺ + e⁻), while at the cathode, lithium ions gain electrons. The electrolyte allows ion flow while the external circuit carries electrons, creating the electrical current that powers your device!
+                </div>
+            </div>
+        </div>
+
+        <div class="completion-message" id="completionMsg">
+            <h2>🎉 Congratulations, Chemistry Explorer! 🎉</h2>
+            <p>You've discovered all the amazing chemistry happening around you every day! Share your favorite discovery with someone nearby and start a conversation about the science in our daily lives.</p>
+            <button class="reset-btn" onclick="resetGame()">Explore Again!</button>
+        </div>
+    </div>
+
+    <script>
+        let discoveredItems = 0;
+        const totalItems = 8;
+        let clickedItems = new Set();
+
+        function updateScore() {
+            document.getElementById('score').textContent = `Discoveries: ${discoveredItems}/${totalItems}`;
+        }
+
+        function checkCompletion() {
+            if (discoveredItems === totalItems) {
+                setTimeout(() => {
+                    document.getElementById('completionMsg').style.display = 'block';
+                    document.getElementById('completionMsg').scrollIntoView({ behavior: 'smooth' });
+                }, 500);
+            }
+        }
+
+        function resetGame() {
+            discoveredItems = 0;
+            clickedItems.clear();
+            updateScore();
+            
+            document.querySelectorAll('.chemistry-item').forEach(item => {
+                item.classList.remove('revealed');
+            });
+            
+            document.getElementById('completionMsg').style.display = 'none';
+        }
+
+        // Add click event listeners to all chemistry items
+        document.querySelectorAll('.chemistry-item').forEach(item => {
+            item.addEventListener('click', function() {
+                const itemId = this.dataset.item;
+                
+                if (!clickedItems.has(itemId)) {
+                    this.classList.add('revealed');
+                    clickedItems.add(itemId);
+                    discoveredItems++;
+                    updateScore();
+                    checkCompletion();
+                    
+                    // Add a little celebration effect
+                    this.style.transform = 'scale(1.05)';
+                    setTimeout(() => {
+                        this.style.transform = '';
+                    }, 300);
+                }
+            });
+        });
+
+        // Initialize score
+        updateScore();
+    </script>
+</body>
+</html>
